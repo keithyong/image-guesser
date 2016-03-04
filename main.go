@@ -2,18 +2,26 @@ package main;
 
 import (
 	"fmt"
-	"log"
-	//"image"
-	"io/ioutil"
+    "image"
+    "image/jpeg"
+	"os"
 )
 
 func main() {
-	fmt.Println("HI")
-	file, err := ioutil.ReadFile("img.jpg")
-	
-	if err != nil {
-		log.Fatalf("Error reading image: %s", err)
-	}
-
-	fmt.Println(string(file))
+	file, err := os.Open("img.jpg")
+    if err != nil {
+        panic(err)
+    }
+    defer file.Close()
+    img, _, err := image.Decode(file)
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Println(img.Bounds())
+    fmt.Println(img.At(10, 10))
+    newImg, _ := os.Create("new.jpg")
+    defer newImg.Close()
+    
+    jpeg.Encode(newImg, img, &jpeg.Options{jpeg.DefaultQuality})
 }
