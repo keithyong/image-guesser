@@ -18,10 +18,19 @@ func main() {
         panic(err)
     }
     
-    fmt.Println(img.Bounds())
-    fmt.Println(img.At(10, 10))
     newImg, _ := os.Create("new.jpg")
     defer newImg.Close()
     
-    jpeg.Encode(newImg, img, &jpeg.Options{jpeg.DefaultQuality})
+    b := img.Bounds()
+    m := image.NewRGBA(image.Rect(0, 0, b.Max.X, b.Max.Y * 2))
+    
+    for y := b.Min.Y; y < b.Max.Y; y++ {
+        for x := b.Min.X; x < b.Max.X; x++ {
+           m.Set(x, y, img.At(x, y))
+           m.Set(b.Max.X - x, y, img.At(x, y))
+        }
+        fmt.Println(y)
+    }
+    
+    jpeg.Encode(newImg, m, &jpeg.Options{jpeg.DefaultQuality})
 }
