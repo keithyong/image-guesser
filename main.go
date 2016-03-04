@@ -1,10 +1,10 @@
 package main;
 
 import (
-	"fmt"
     "image"
     "image/jpeg"
 	"os"
+    "errors"
 )
 
 func main() {
@@ -21,16 +21,32 @@ func main() {
     newImg, _ := os.Create("new.jpg")
     defer newImg.Close()
     
-    b := img.Bounds()
-    m := image.NewRGBA(image.Rect(0, 0, b.Max.X, b.Max.Y * 2))
-    
-    for y := b.Min.Y; y < b.Max.Y; y++ {
-        for x := b.Min.X; x < b.Max.X; x++ {
-           m.Set(x, y, img.At(x, y))
-           m.Set(b.Max.X - x, y, img.At(x, y))
-        }
-        fmt.Println(y)
-    }
+    m, _ := crop(image.Rect(10, 10, 250, 250), img)
     
     jpeg.Encode(newImg, m, &jpeg.Options{jpeg.DefaultQuality})
+}
+
+// Returns a new cropped image
+func crop(r image.Rectangle, i image.Image) (*image.RGBA, error) {
+    b := i.Bounds()
+    var c *image.RGBA
+    
+    // Out of bounds error checking
+    if (b.Max.X < r.Max.X || b.Max.Y < r.Max.Y) {
+        err := errors.New("Input rectangle larger than input image bounds.")
+        return c, err
+    } else if (r.Min.X < b.Min.X || r.Min.Y < b.Min.Y) {
+        err := errors.New("Input rectangle smaller than input image bounds.")
+        return c, err
+    }
+    
+    c = image.NewRGBA(r)
+    
+    for y := r.Min.Y; y < r.Max.Y; y++ {
+        for x := r.Min.X; x < r.Max.X; x++ {
+            c.Set(x, y, i.At(x, y))
+        }
+    }
+
+    return c, nil
 }
