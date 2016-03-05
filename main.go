@@ -7,6 +7,12 @@ import (
     "errors"
 )
 
+type Neuron struct {
+    inputs      int[]
+    weighs      int[]
+    threshold   int
+}
+
 func main() {
 	file, err := os.Open("img.jpg")
     if err != nil {
@@ -21,7 +27,7 @@ func main() {
     newImg, _ := os.Create("new.jpg")
     defer newImg.Close()
     
-    m, _ := crop(image.Rect(10, 10, 250, 250), img)
+    m, _ := crop(image.Rect(0, 0, 350, 350), img)
     
     jpeg.Encode(newImg, m, &jpeg.Options{jpeg.DefaultQuality})
 }
